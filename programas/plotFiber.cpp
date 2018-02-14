@@ -67,6 +67,7 @@ void plotFiber(string fibra)
 	cout << "Calculo de Amplitud Media, primer archivo" << endl;
 
 	float max0 = 0;
+	float tmax0 = 0;
 	float sum0 = 0;
 	float average0 = 0;
 	cout << "Total de eventos: "<< tabla0->GetEntries() << endl;
