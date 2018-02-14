@@ -50,7 +50,7 @@ void plotFiber(string fibra)
 	TFile* file3 = new TFile(target.c_str(),"read");
 	TTree* tabla3 = (TTree*)file3->Get("tabla");
 
-
+	tabla0->Scan();
 /*
 	tabla0->Print();
 	tabla0->Scan();
