@@ -37,7 +37,7 @@ void plotFiber(string fibra)
 	Float_t* c1 = new Float_t[1002];		tabla0->SetBranchAddress("ch1",c1);
 	Float_t* c2 = new Float_t[1002];		tabla0->SetBranchAddress("ch2",c2);
 	Float_t* c3 = new Float_t[1002];		tabla0->SetBranchAddress("ch3",c3);
-
+/*
 	target=  tuplasDir + fibra + arr[1];
 	TFile* file1 = new TFile(target.c_str(),"read");
 	TTree* tabla1 = (TTree*)file1->Get("tabla");
@@ -51,7 +51,6 @@ void plotFiber(string fibra)
 	TTree* tabla3 = (TTree*)file3->Get("tabla");
 
 	tabla0->Scan();
-/*
 	tabla0->Print();
 	tabla0->Scan();
 	tabla1->Print();
@@ -68,6 +67,7 @@ void plotFiber(string fibra)
 
 	float max0 = 0;
 	float tmax0 = 0;
+	int jmax =0;
 	float sum0 = 0;
 	float average0 = 0;
 	cout << "Total de eventos: "<< tabla0->GetEntries() << endl;
@@ -80,10 +80,17 @@ void plotFiber(string fibra)
 		for (int j=0; j<d; j++)
 		{
 			if (max0<c1[j])
+			{
 				max0 = c1[j];
 				tmax0 = tm[j];
+				jmax = j;
+			}
+				
 		}
-		cout << "Para el evento "<< k<< ", el maximo es "<< max0 << "en el tiempo "<< tmax0 << endl;
+		//cout << "Para el evento "<< k<< ", el maximo es "<< max0 << "en el tiempo "<< tmax0 << endl;
+		cout << "Para el evento k=" << k << ", el maximo es "<< max0
+		<< " en el tiempo "<< tmax0 << " sample j=" << jmax << endl;
+		
 		sum0 += max0;
 	}
 	average0 = sum0/(tabla0->GetEntries());
