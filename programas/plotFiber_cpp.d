@@ -63,5 +63,13 @@
 ./plotFiber_cpp.so: /Applications/root_v6.12.04/include/ROOT/TRWSpinLock.hxx
 ./plotFiber_cpp.so: /Applications/root_v6.12.04/include/ROOT/TSpinMutex.hxx
 ./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TROOT.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TMath.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TError.h
+./plotFiber_cpp.so: /usr/include/float.h /usr/include/math.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TGraphErrors.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TGraph.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TVectorFfwd.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TVectorDfwd.h
+./plotFiber_cpp.so: /Applications/root_v6.12.04/include/TFitResultPtr.h
 ./plotFiber_cpp.so: /Applications/root_v6.12.04/include/RVersion.h /Applications/root_v6.12.04/include/RConfig.h /Applications/root_v6.12.04/include/TClass.h /Applications/root_v6.12.04/include/TDictAttributeMap.h /Applications/root_v6.12.04/include/TInterpreter.h /Applications/root_v6.12.04/include/TROOT.h /Applications/root_v6.12.04/include/TBuffer.h /Applications/root_v6.12.04/include/TMemberInspector.h /Applications/root_v6.12.04/include/TError.h /Applications/root_v6.12.04/include/RtypesImp.h /Applications/root_v6.12.04/include/TIsAProxy.h /Applications/root_v6.12.04/include/TFileMergeInfo.h /Applications/root_v6.12.04/include/TCollectionProxyInfo.h /Applications/root_v6.12.04/bin/rootcling
 plotFiber_cpp__ROOTBUILDVERSION= 6.12/04

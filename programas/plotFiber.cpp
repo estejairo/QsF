@@ -1,17 +1,44 @@
 /* plotFiber.cpp
-recive en nombre de una fibra colectora de luz y genera un grafico con cuatro puntos dando el valor amplitud media
+recive el nombre de una fibra colectora de luz y genera un grafico con cuatro puntos dando el valor amplitud media
 */
 
 #include "TTree.h"
 #include "TFile.h"
 #include "TROOT.h"
-#include "iostream"
+#include <iostream>
+#include "TMath.h"
+#include "TGraphErrors.h"
+
 using namespace std;
 
-void plotFiber(string fibra)
+TGraphErrors *tge;
+void AmpStat(string fibra, string pos, float &mean,float &desv);
+
+//mostrar los nombre de las 4 tuplas que leer buscando informacion
+TGraphErrors *plotFiber(string fibra)
 {
-	//mostrar los nombre de las 4 tuplas que leer buscando informacion
+	cout << "calling to plotFiber" << endl;
 	const char *arr[] = {"-05.1mm.root","-33.9mm.root","-62.7mm.root","-91.5mm.root"};
+  float MEAN[4], DESV[4], POSX[4]={5.1,33.9,62.7,91.5}, ePOSX[4]={0,0,0,0};
+
+	for (int i = 0; i<4 ; i++)
+	{
+		string pos   = arr[i];
+		printf("AmpStat(%s, %s, MEAN[%d], DESV[%d]);\n",fibra.c_str(),pos.c_str(),i,i);
+		AmpStat( fibra,  pos, MEAN[i], DESV[i] );
+	}
+	//salida de la funcion
+	tge = new TGraphErrors(4, POSX, MEAN, ePOSX, DESV);
+	tge->Draw();
+	return tge;
+}
+
+
+
+
+//estadisticas simples de la amplitud
+void AmpStat(string fibra, string pos, float &mean,float &desv)
+{
 
 	//string raiz = "/Users/pablinho/SILAB/PET/QsF/tuplas/";
 	//supongamos que este programa se encuentra en $raiz/git/QsF/programas
@@ -19,15 +46,11 @@ void plotFiber(string fibra)
 	string tuplasDir = "../../../tuplas/";
 
 	string target;
-	for (int n=0; n<4; ++n)
-	{
-		target= tuplasDir + fibra + arr[n];
-		printf("%s\n",target.c_str());
-	}
-
 
 	//Abrir los archivos correspondientes
-	target=  tuplasDir + fibra + arr[0];
+	//target=  tuplasDir + fibra + arr[0];
+	target=  tuplasDir + fibra + pos;
+
 	TFile* file0 = new TFile(target.c_str(),"read");
 	TTree* tabla0 = (TTree*)file0->Get("tabla");
 
@@ -37,46 +60,38 @@ void plotFiber(string fibra)
 	Float_t* c1 = new Float_t[1002];		tabla0->SetBranchAddress("ch1",c1);
 	Float_t* c2 = new Float_t[1002];		tabla0->SetBranchAddress("ch2",c2);
 	Float_t* c3 = new Float_t[1002];		tabla0->SetBranchAddress("ch3",c3);
-/*
-	target=  tuplasDir + fibra + arr[1];
-	TFile* file1 = new TFile(target.c_str(),"read");
-	TTree* tabla1 = (TTree*)file1->Get("tabla");
 
-	target=  tuplasDir + fibra + arr[2];
-	TFile* file2 = new TFile(target.c_str(),"read");
-	TTree* tabla2 = (TTree*)file2->Get("tabla");
+	//revision de los datos evento por evento
 
-	target=  tuplasDir + fibra + arr[3];
-	TFile* file3 = new TFile(target.c_str(),"read");
-	TTree* tabla3 = (TTree*)file3->Get("tabla");
-
-	tabla0->Scan();
-	tabla0->Print();
-	tabla0->Scan();
-	tabla1->Print();
-	tabla2->Print();
-	tabla3->Print();
-*/
-
-
-	//Calculo de pedestal
-
-	//Calculo de Amplitud Media por medicion
+	float tped1=-100, tped2=0;
 
 	cout << "Calculo de Amplitud Media, primer archivo" << endl;
 
 	float max0 = 0;
 	float tmax0 = 0;
 	int jmax =0;
-	float sum0 = 0;
-	float average0 = 0;
+	float sum0 = 0, sum2 = 0;
+	float average0 = 0, varianza = 0;
 	cout << "Total de eventos: "<< tabla0->GetEntries() << endl;
 	for (int k=0; k<tabla0->GetEntries(); k++)
 	{
 		tabla0->GetEntry(k);
-		max0=0;
+
+		//Calculo del pedestal
+		int nped=0;
+		float ped=0;
+		for (int j=0; j<d; j++)
+		{
+			if ( tped1<=tm[j] && tm[j]<=tped2)
+			{
+				nped++;
+				ped+=c1[j];
+			}
+		}
+		ped/=nped;
 
 		//Calculo de amplitud maxima por evento
+		max0=0;
 		for (int j=0; j<d; j++)
 		{
 			if (max0<c1[j])
@@ -85,20 +100,19 @@ void plotFiber(string fibra)
 				tmax0 = tm[j];
 				jmax = j;
 			}
-				
 		}
+		average0 += (max0-ped); // falta restar pedestal y dividir por numero de muestras
+		varianza += (max0-ped)*(max0-ped);
+		// estadisticas por evento
 		//cout << "Para el evento "<< k<< ", el maximo es "<< max0 << "en el tiempo "<< tmax0 << endl;
-		cout << "Para el evento k=" << k << ", el maximo es "<< max0
-		<< " en el tiempo "<< tmax0 << " sample j=" << jmax << endl;
-		
-		sum0 += max0;
 	}
-	average0 = sum0/(tabla0->GetEntries());
-	cout << "El promedio es: "<< average0 << endl;
+	average0 = average0/(tabla0->GetEntries());
+	varianza = varianza/(tabla0->GetEntries());
 
-	//float amplitud_media0 =
-
-	//Calculo de amplitud media normalizada
-
-
+	// efectos en las variables de entrada mean y desv
+	mean = average0;
+	desv = TMath::Sqrt(varianza-mean*mean);
+	cout << "El promedio es: "<< mean << endl;
+	cout << "La varianza es: "<< desv << endl;
+	return;
 }
