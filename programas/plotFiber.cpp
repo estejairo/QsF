@@ -13,38 +13,40 @@ void plotFiber(string fibra)
 	//mostrar los nombre de las 4 tuplas que leer buscando informacion
 	const char *arr[] = {"-05.1mm.root","-33.9mm.root","-62.7mm.root","-91.5mm.root"};
 	
-	string raiz = "/Users/pablinho/SILAB/PET/QsF/tuplas/";
+	//string raiz = "/Users/pablinho/SILAB/PET/QsF/tuplas/";
+	//supongamos que este programa se encuentra en $raiz/git/QsF/programas
+	// y que las tuplas procesadas se encuentran en $raiz/tuplas
+	string tuplasDir = "../../../tuplas/";
 
 	string target;
 	for (int n=0; n<4; ++n)
 	{
-		target= raiz + fibra + arr[n];
+		target= tuplasDir + fibra + arr[n];
 		printf("%s\n",target.c_str());
 	}
 	
 	
 	//Abrir los archivos correspondientes
-	target=  raiz + fibra + arr[0];
+	target=  tuplasDir + fibra + arr[0];
 	TFile* file0 = new TFile(target.c_str(),"read");
 	TTree* tabla0 = (TTree*)file0->Get("tabla");
 	
-	
-	Int_t ev;		tabla0->SetBranchAddress("event",&ev);
-	Int_t d;		tabla0->SetBranchAddress("dim",&d);
+	Int_t ev;								tabla0->SetBranchAddress("event",&ev);
+	Int_t d;								tabla0->SetBranchAddress("dim",&d);
 	Float_t* tm = new Float_t[1002];		tabla0->SetBranchAddress("T",tm);
 	Float_t* c1 = new Float_t[1002];		tabla0->SetBranchAddress("ch1",c1);
 	Float_t* c2 = new Float_t[1002];		tabla0->SetBranchAddress("ch2",c2);
 	Float_t* c3 = new Float_t[1002];		tabla0->SetBranchAddress("ch3",c3);
 	
-	target=  raiz + fibra + arr[1];
+	target=  tuplasDir + fibra + arr[1];
 	TFile* file1 = new TFile(target.c_str(),"read");
 	TTree* tabla1 = (TTree*)file1->Get("tabla");
 	
-	target=  raiz + fibra + arr[2];
+	target=  tuplasDir + fibra + arr[2];
 	TFile* file2 = new TFile(target.c_str(),"read");
 	TTree* tabla2 = (TTree*)file2->Get("tabla");
 	
-	target=  raiz + fibra + arr[3];
+	target=  tuplasDir + fibra + arr[3];
 	TFile* file3 = new TFile(target.c_str(),"read");
 	TTree* tabla3 = (TTree*)file3->Get("tabla");
 	
