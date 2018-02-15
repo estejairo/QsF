@@ -17,16 +17,18 @@ void AmpStat(string fibra, string pos, float &mean,float &desv);
 //mostrar los nombre de las 4 tuplas que leer buscando informacion
 TGraphErrors *plotFiber(string fibra)
 {
-	cout << "calling to plotFiber" << endl;
+	cout << "\ncalling to plotFiber\n" << endl;
 	const char *arr[] = {"-05.1mm.root","-33.9mm.root","-62.7mm.root","-91.5mm.root"};
   float MEAN[4], DESV[4], POSX[4]={5.1,33.9,62.7,91.5}, ePOSX[4]={0,0,0,0};
 
 	for (int i = 0; i<4 ; i++)
 	{
 		string pos   = arr[i];
+		cout << "--------------------------------------------------------" << endl;
 		printf("AmpStat(%s, %s, MEAN[%d], DESV[%d]);\n",fibra.c_str(),pos.c_str(),i,i);
 		AmpStat( fibra,  pos, MEAN[i], DESV[i] );
 	}
+	cout << "--------------------------------------------------------\n" << endl;
 	//salida de la funcion
 	tge = new TGraphErrors(4, POSX, MEAN, ePOSX, DESV);
 	tge->Draw();
@@ -64,8 +66,6 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	//revision de los datos evento por evento
 
 	float tped1=-100, tped2=0;
-
-	cout << "Calculo de Amplitud Media, primer archivo" << endl;
 
 	float max0 = 0;
 	float tmax0 = 0;
@@ -112,7 +112,11 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	// efectos en las variables de entrada mean y desv
 	mean = average0;
 	desv = TMath::Sqrt(varianza-mean*mean);
+	float v = (desv*desv)/mean;
+	float n = (desv*desv)/(v*v);
 	cout << "El promedio es: "<< mean << endl;
 	cout << "La varianza es: "<< desv << endl;
+	cout << "Pixeles activados: " << n <<endl;
+	cout << "Amplitud por pixel: " << v <<endl;
 	return;
 }
