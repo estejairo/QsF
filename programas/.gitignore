@@ -1,0 +1,8 @@
+*.o
+*.pcm
+*.so
+*.trc
+*.root
+*.jairo
+
+
