@@ -53,7 +53,8 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	//target=  tuplasDir + fibra + arr[0];
 	target=  tuplasDir + fibra + pos;
 
-	TFile* file0 = new TFile(target.c_str(),"read");
+	//TFile* file0 = new TFile(target.c_str(),"read");
+	TFile* file0 = new TFile(target.c_str(),"update");
 	TTree* tabla0 = (TTree*)file0->Get("tabla");
 
 	Int_t ev;								tabla0->SetBranchAddress("event",&ev);
@@ -62,6 +63,13 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	Float_t* c1 = new Float_t[1002];		tabla0->SetBranchAddress("ch1",c1);
 	Float_t* c2 = new Float_t[1002];		tabla0->SetBranchAddress("ch2",c2);
 	Float_t* c3 = new Float_t[1002];		tabla0->SetBranchAddress("ch3",c3);
+
+	//agregar arbol con informacion extraida para construir histogramas de amplitud normalizada
+	// histo(mean{amplitud}/mean{vPIN})
+	TTree* info = new TTree("info","info");
+										info->Branch("event",&ev,"event/I");
+	Float_t aMPPC=0;	info->Branch("aMPPC",	&aMPPC,"aMPPC/F");
+	Float_t vPIN=0;		info->Branch("vPIN",	&vPIN,	"vPIN/F");
 
 	//revision de los datos evento por evento
 
@@ -72,6 +80,7 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	int jmax =0;
 	float sum0 = 0, sum2 = 0;
 	float average0 = 0, varianza = 0;
+
 	cout << "Total de eventos: "<< tabla0->GetEntries() << endl;
 	for (int k=0; k<tabla0->GetEntries(); k++)
 	{
@@ -91,7 +100,7 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 		ped/=nped;
 
 		//Calculo de amplitud maxima por evento
-		max0=0;
+		max0 = -100;
 		for (int j=0; j<d; j++)
 		{
 			if (max0<c1[j])
@@ -102,10 +111,26 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 			}
 		}
 		average0 += (max0-ped); // falta restar pedestal y dividir por numero de muestras
+		aMPPC = (max0-ped);
 		varianza += (max0-ped)*(max0-ped);
 		// estadisticas por evento
 		//cout << "Para el evento "<< k<< ", el maximo es "<< max0 << "en el tiempo "<< tmax0 << endl;
+
+		// calculo de valor medio para el voltage de salida del diodo PIN
+		vPIN = 0;
+		int nPIN = 0;
+		for (int j=0; j<d; j++)
+		{
+			nPIN++;
+			vPIN+=c2[j];
+		}
+		vPIN/=nPIN;
+
+		//agregar fila k-esima del arbol info
+		info->Fill();
 	}
+
+	//processing post lectura de arboles
 	average0 = average0/(tabla0->GetEntries());
 	varianza = varianza/(tabla0->GetEntries());
 
@@ -118,5 +143,9 @@ void AmpStat(string fibra, string pos, float &mean,float &desv)
 	cout << "La varianza es: "<< desv << endl;
 	cout << "Pixeles activados: " << n <<endl;
 	cout << "Amplitud por pixel: " << v <<endl;
+
+	//guardar y cerrar cosas
+	info->Write("",TObject::kOverwrite);
+	file0->Close();
 	return;
 }
