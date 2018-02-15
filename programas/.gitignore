@@ -3,6 +3,8 @@
 *.so
 *.trc
 *.root
-*.jairo
+*.DS_Store
+*.d
+o
 
 
