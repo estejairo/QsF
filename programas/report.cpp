@@ -12,21 +12,24 @@
 using namespace std;
 
 //TCanvas *canvas = new TCanvas();
-
-void rutina(string fibra, string poss);
+void rutina0(string fibra);
+void rutina(string fibra);
 
 void report(void)
 {
   const char *FIB[] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up"};
-  const char *POS[] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
+  //const char *POS[] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
   for (int i = 0; i<9 ; i++)
   {
     string fib = FIB[i];
-    for (int j = 0; j<4 ; j++)
-    {
-      string pos = POS[j];
-      rutina(fib, pos);
-    }
+    rutina0(fib);
+    rutina(fib);
+
+    // for (int j = 0; j<4 ; j++)
+    // {
+    //   string pos = POS[j];
+    //   rutina(fib);
+    // }
   }
 }
 
@@ -56,19 +59,22 @@ void rutina0(string fibra)
     }
     //infoFile[j]->Close();
   }
+  auxFile->cd();
   auxTree->Write("",TObject::kOverwrite);
   auxFile->Close();
   for (int j=0; j<4; j++)
+  {
+    infoFile[j]->cd();
     infoFile[j]->Close();
+  }
 }
 
-void rutina(string fibra, string poss)
+void rutina(string fibra)
 {
-  string tuplasDir = "../../../tuplas/";
   string figuresDir = "../../../figures/";
-  string target =  tuplasDir + fibra + poss + ".root";
+  string target = "./auxFile.root";
   TFile* file = new TFile(target.c_str(),"read");
-	TTree* info = (TTree*)file->Get("info");
+	TTree* info = (TTree*)file->Get("auxTree");
   TCanvas *canvas = new TCanvas();
   TH1F *H = new TH1F("haMPPC","haMPPC",100,0,12);
   info->Draw("aMPPC>>haMPPC");
@@ -128,7 +134,75 @@ void rutina(string fibra, string poss)
   //fmax->SetParameters(maxG0,maxG1,maxG2);
 
   //exportar figura y guardarla
-  string figureName = figuresDir + fibra + poss + ".pdf";
+  string figureName = figuresDir + fibra + ".pdf";
   cout << "saving figure as :" << figureName.c_str() << endl;
   canvas->SaveAs(figureName.c_str());
+}
+
+void rutina2()
+{
+  //Configuracion de directorio y nombre de archivos
+  const char *FIB[] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up"};
+  const char *POS[] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
+  float MEAN[4], DESV[4], POSX[4]={5.1,33.9,62.7,91.5}, ePOSX[4]={0,0,0,0};
+
+  TCanvas *grafico = new TCanvas();
+  TGraph *tge[9];
+
+  string arbolesDir = "../../../arboles/";
+  TFile* file[4];
+  Float_t aMPPC;
+  Float_t vPIN;
+
+  float sum = 0;
+  float sum2 = 0;
+  int nEvents = 0;
+
+  for (int i=0; i<9; i++)
+  {
+    string fib = FIB[i];
+    for (int j=0; j<4; j++)
+    {
+      string pos = POS[j];
+      string target =  arbolesDir + fib + pos + ".root";
+
+      // Apertura del archivo
+      file[j] = new TFile(target.c_str(),"read");
+      TTree* info = (TTree*)file[j]->Get("info");
+
+      // Punteros para leer elementos del archivo
+      info->SetBranchAddress("aMPPC",&aMPPC);
+      info->SetBranchAddress("vPIN",&vPIN);
+
+      // Calculo de media y desviacion estandar
+      nEvents = info->GetEntries();
+      for ( int k = 0; k<nEvents; k++)
+      {
+        info->GetEntry(k);
+        sum += aMPPC;
+        sum2 += aMPPC*aMPPC;
+      }
+      MEAN[j] = sum/nEvents;
+      DESV[j] = TMath::Sqrt((sum2/nEvents)-(MEAN[j]*MEAN[j]));
+
+      cout << "-----------------------------------------------"<<endl;
+      cout << (fib+pos).c_str() <<endl;
+      cout << "mean:" << MEAN[j] <<endl;
+      cout << "desv:" << DESV[j] <<endl;
+      cout << "-----------------------------------------------"<<endl;
+
+      // Cierre de archivo
+      file[j]->cd();
+      file[j]->Close();
+      sum = 0;
+      sum2 = 0;
+
+    }
+    tge[i] = new TGraph(4, POSX, MEAN);
+    grafico->cd();
+    tge[i]->Draw("same");
+
+  }
+
+  return;
 }
