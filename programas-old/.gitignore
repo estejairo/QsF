@@ -1,0 +1,10 @@
+*.o
+*.pcm
+*.so
+*.trc
+*.root
+*.DS_Store
+*.d
+o
+
+

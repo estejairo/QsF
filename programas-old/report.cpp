@@ -17,7 +17,7 @@ void rutina(string fibra, string poss);
 
 void report(void)
 {
-  const char *FIB[] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up"};
+  const char *FIB[] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up",};
   const char *POS[] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
   for (int i = 0; i<9 ; i++)
   {
@@ -30,37 +30,6 @@ void report(void)
   }
 }
 
-void rutina0(string fibra)
-{
-  TFile* auxFile = new TFile("auxFile.root","recreate");
-  TTree* auxTree = new TTree("auxTree","auxTree");
-  float aMPPC;
-  auxTree->Branch("aMPPC",&aMPPC,"aMPPC/F");
-  //junta los 4 info-arboles por fibra y crea un arbol con los maximos por eventos
-  //const char *FIB[] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up"};
-  const char *POS[] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
-  TFile* infoFile[4];
-  for (int j=0; j<4; j++)
-  {
-    string pos = POS[j];
-    string arbolNesimosDir = "../../../arboles/" + fibra + pos + ".root";
-    cout << "arbol " << j << " : " << arbolNesimosDir.c_str() << endl;
-    infoFile[j] = new TFile(arbolNesimosDir.c_str(),"read");
-    TTree* info = (TTree*)infoFile[j]->Get("info");
-    info->SetBranchAddress("aMPPC",&aMPPC);
-    for (int k=0; k<info->GetEntries();k++)
-    {
-      info->GetEntry(k);
-      cout << aMPPC << endl;
-      auxTree->Fill();
-    }
-    //infoFile[j]->Close();
-  }
-  auxTree->Write("",TObject::kOverwrite);
-  auxFile->Close();
-  for (int j=0; j<4; j++)
-    infoFile[j]->Close();
-}
 
 void rutina(string fibra, string poss)
 {
