@@ -6,9 +6,11 @@
 #include "TGraphErrors.h"
 #include "TCanvas.h"
 #include "TLegend.h"
+#include "TText.h"
 #include "TH1F.h"
 #include "TF1.h"
 #include "TSpectrum.h"
+//#include <stdio.h>
 
 using namespace std;
 
@@ -88,7 +90,8 @@ void rutina(string fibra)
   // encontrar(approximadamente) amplitud media por pixel, y peaks lejanos
   float minS = *(min_element(xpeaks,xpeaks+np)) ;
   float maxS = *(max_element(xpeaks,xpeaks+np)) ;
-  float gpp = ( maxS - minS )/(np-1);
+  float gppS = ( maxS - minS )/(np-1);  // ganancia por pixel (en amplitud) usando TSpectrum
+  float gppF ; // ganancia por pixel (en amplitud) usando TFit c/gaussianas
 
   //fittear gaussianas a los maximos relativos
   //TF1 *fmin = new TF1("fmin","gaus",minP-0.3,minP+0.3);
@@ -125,8 +128,9 @@ void rutina(string fibra)
   fmax->SetParameters(maxG0,maxG1,maxG2);
   fmax->Draw("SAME");
 
-  cout << "Amplitud por pixel[TSpectrum method]: " << gpp << endl;
-  cout << "Amplitud por pixel[TFit gaus method]: " << (maxG1-minG1)/(np-1) << endl;
+  gppF = (maxG1-minG1)/(np-1);
+  cout << "Amplitud por pixel[TSpectrum method]: " << gppS << endl;
+  cout << "Amplitud por pixel[TFit gaus method]: " << gppF << endl;
   //cout << "fmin stats:" << fmin->GetParameter(1) << ", " << fmin->GetParameter(2) << endl;
   //cout << "fmax stats:" << fmax->GetParameter(1) << ", " << fmax->GetParameter(2) << endl;
   //fmax->SetParameters(maxG0,maxG1,maxG2);
@@ -135,6 +139,24 @@ void rutina(string fibra)
   string figuresDir = "../../../figures/";
   string figureName = figuresDir + fibra + ".pdf";
   cout << "saving figure as :" << figureName.c_str() << endl;
+
+  char array[10];
+  sprintf(array, "%f", gppS);
+  cout << array << endl;
+
+
+  string word = array;
+  cout << word << endl;
+
+  TText texto(8, 125, ("GPPS: "+word).c_str() );
+
+  sprintf(array, "%f", gppF);
+  word = array;
+  TText texto2(8, 100,("GPPF: "+word).c_str());
+
+  texto.Draw();
+  texto2.Draw();
+
   canvas->SaveAs(figureName.c_str());
 }
 
@@ -221,9 +243,9 @@ void rutina2()
     // Se configura el grafico en el primer elemento a graficar
     if (ngraph == 0)
     {
-      tge[i]->SetTitle("Amplitud media v/s Posicion");
-      tge[i]->GetXaxis()->SetTitle("Posicion [mm]");
-      tge[i]->GetYaxis()->SetTitle("Amplitud Media [v]");
+      tge[i]->SetTitle("Max Pulse Amplitude v/s Position");
+      tge[i]->GetXaxis()->SetTitle("Position [mm]");
+      tge[i]->GetYaxis()->SetTitle("Max Pulse Amplitude [mV]");
       tge[i]->SetLineColor((i+1));
       tge[i]->GetHistogram()->SetMaximum(12.);
       tge[i]->GetHistogram()->SetMinimum(0.);
