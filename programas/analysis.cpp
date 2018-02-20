@@ -12,7 +12,7 @@ void treeData2treeInfo( const char* treeDirName );
 void analysis(void)
 {
 	//recorre la carpeta tuplasDIR/"tuplas-crudas" y crea arbolesDIR/"arbole-informacion"
-	const char *FIB[9] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up",};
+	const char *FIB[9] = {"S1up","S2up","S3up","M1up","M2up","F1up","F2up","E1up","E2up"};
   const char *POS[4] = {"-05.1mm","-33.9mm","-62.7mm","-91.5mm"};
 	for (int i = 0; i<9 ; i++)
   {
